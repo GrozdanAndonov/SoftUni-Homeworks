@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="jquery-3.1.1.min.js"></script>
+</head>
+<body>
+<h1>Phonebook</h1>
+<ul id="phonebook"></ul>
+<button id="btnLoad">Load</button>
+
+<h2>Create Contact</h2>
+Person: <input type="text" id="person" />
+<br>
+Phone: <input type="text" id="phone" />
+<br>
+<button id="btnCreate">Create</button>
+<script>
+    $(function () {
+        let url="https://phonebook-app-5535c.firebaseio.com/phonebook.json";
+        $("#btnLoad").click(loadContacts);
+        $("#btnCreate").click(createContact);
+
+
+
+        function loadContacts() {
+            $("#phonebook").empty();
+            $.get(url)
+                .then(displayContacts)
+                .fail(displayError)
+            }
+        function displayContacts(contacts) {
+            let keys=Object.keys(contacts);
+                for(let key of keys){
+                    let contact=contacts[key];
+                  let li= $("<li>").append(contact.name+"-"+contact.phone+" ");
+                    li.append($(`<a href="#">Delete</a>`).click(function () {
+                        deleteContact(key)
+                    }));
+                    $("#phonebook").append(li);
+                  }
+        }
+        function deleteContact(key) {
+            let url="https://phonebook-app-5535c.firebaseio.com/phonebook/"+key+".json";
+                let delRequest={
+                    method:"DELETE",
+                    url:url
+                };
+                $.ajax(delRequest)
+                    .then(loadContacts)
+                    .fail(displayError)
+        }
+        function createContact() {
+            let url="https://phonebook-app-5535c.firebaseio.com/phonebook.json";
+            let name=$("#person").val();
+            let phone=$("#phone").val();
+            let newContact={name,phone};
+            let createRequest={
+                method:"POST",
+                url:url,
+                data:JSON.stringify(newContact)
+            };
+            $.ajax(createRequest)
+                .then(loadContacts)
+                .fail(displayError);
+        }
+        function displayError() {
+            $("#phonebook").html(`<li>Error!</li>`);
+        }
+    });
+</script>
+</body>
+</html>
