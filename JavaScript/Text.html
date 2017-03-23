@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script src="./ScriptAjaxCalls.js"></script>
+    <title>Title</title>
+    <script src="jquery-3.1.1.min.js"></script>
+</head>
+<body>
+GitHub username:
+<input type="text" id="username" value="Enter here..." />
+<button onclick="loadRepos()">Load Repos</button>
+<ul id="repos"></ul>
+<script>
+    function loadRepos() {
+            document.getElementById("repos").innerHTML="";
+//          $("#repos").empty();
+        let user=document.getElementById("username").value;
+        let url="https://api.github.com/users/"+user+"/repos";
+        let req=new XMLHttpRequest();
+        req.onreadystatechange=function () {
+            if(this.readyState==4 && this.status==200){
+                document.getElementById("repos").innerHTML =``;
+                for(let repo of JSON.parse(this.responseText)) {
+                    document.getElementById("repos").innerHTML +=`<li><a href="${repo.clone_url}">${repo.name}</a></li>`;
+                }
+                }else{
+                if(this.readyState!=4 && this.status==404){
+                    document.getElementById("repos").innerHTML =`Error!`;
+                }
+            }
+            };
+        req.open("GET",url,true);
+        req.send();
+//WITH JQuery->
+//     }
+//                $.ajax({
+//                    url,
+//                    success: function (repositories) {
+//                        console.dir(repositories);
+////                        for(let repo of repositories){
+////                            $("#repos").append(`<li><a href='${repo.clone_url}'>${repo.name}</a></li>`);
+////                        }
+//                    },
+//                    error: function () {
+//                        $("#repos").append(`<li>Error!</li>`);
+//                    }
+//                });
+//        };
+   }
+</script>
+</body>
+</html>

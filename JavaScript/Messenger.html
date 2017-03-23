@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Messenger</title>
+    <style>
+        label { display: inline-block; width: 5em; }
+        #author, #content { width: 30em; }
+    </style>
+    <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+</head>
+<body>
+<div id="main">
+    <textarea id="messages" cols="80" rows="12" disabled="true"></textarea>
+    <div id="controls">
+        <label for="author">Name: </label><input id="author" type="text"><br>
+        <label for="content">Message: </label><input id="content" type="text">
+        <input id="submit" type="button" value="Send">
+        <!--<input id="refresh" type="button" value="Refresh">-->
+    </div>
+</div>
+<script>
+    $(function () {
+        const url="https://messenger-360e6.firebaseio.com/.json";
+//       $("#refresh").click(refreshConversation);
+       $("#submit").click(sendData);
+       setInterval(refreshConversation,5000);
+       function refreshConversation() {
+           $("#messages").empty();
+            $.get({
+               url:url,
+                success:retrievedData,
+                error:errorData
+            });
+            function retrievedData(data) {
+                let keys=Object.keys(data).sort((obj1,obj2)=>data[obj1].timestamp-data[obj2].timestamp);
+                for(let key of keys){
+                    $("#messages").append(`${data[key].author}:${data[key].content}\n`);
+                }
+            }
+            function errorData() {
+                $("#messages").empty();
+                $("#messages").append("Can not get database......");
+            }
+       }
+       function sendData() {
+           let author=document.getElementById("author").value;
+           let content=document.getElementById("content").value;
+           if(author!="" && content!="") {
+               let date = Date.now();
+               let newMessageJSON = JSON.stringify({
+                   author: author,
+                   content: content,
+                   timestamp: date
+               });
+               $.post(url, newMessageJSON);
+               document.getElementById('author').value = "";
+               document.getElementById('content').value = "";
+               refreshConversation();
+           }
+       }
+    });
+</script>
+</body>
+</html>
